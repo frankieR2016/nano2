@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Last Pharaoh — A Life of Cleopatra</title>
 <style>
-  :root { --gold:#c9a352; --lapis:#1d3a6e; --ivory:#efe7d2; --bg:#0b0b0d; }
+  :root { --gold:#c9a352; --lapis:#1d3a6e; --ivory:#efe7d2; --bg:#0b0b0d; --panel:#16161a; }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; background:var(--bg); color:var(--ivory); font-family: Georgia, "Times New Roman", serif; height:100%; overflow:hidden; }
   header { position:fixed; top:0; left:0; right:0; z-index:10; padding:12px 18px; background:rgba(11,11,13,.85); backdrop-filter:blur(8px); border-bottom:1px solid rgba(201,163,82,.25); display:flex; justify-content:space-between; align-items:baseline; }
   header h1 { font-size:16px; margin:0; letter-spacing:.06em; color:var(--gold); }
   header small { color:rgba(239,231,210,.6); font-size:12px; }
   #progress { position:fixed; top:0; left:0; height:3px; width:0; background:var(--gold); z-index:20; transition:width .25s ease; }
-  main { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:60px 80px 60px; }
-  figure { margin:0; text-align:center; max-height:100%; max-width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
-  figure img { max-height:calc(100vh - 130px); max-width:100%; height:auto; width:auto; cursor:zoom-in; border-radius:4px; box-shadow:0 10px 30px rgba(0,0,0,.6); display:block; }
+  main { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:60px 80px 60px; overflow-y:auto; }
+  figure { margin:0; max-width:760px; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  figure img { max-height:calc(100vh - 240px); max-width:100%; height:auto; width:auto; cursor:zoom-in; border-radius:4px; box-shadow:0 10px 30px rgba(0,0,0,.6); display:block; }
   figcaption { color:rgba(239,231,210,.55); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  .note { background:var(--panel); border:1px solid rgba(201,163,82,.25); border-radius:6px; padding:14px 18px; max-width:680px; font-size:15px; line-height:1.5; color:rgba(239,231,210,.85); }
+  .note strong { color:var(--gold); display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; font-weight:normal; }
   button.nav { position:fixed; top:50%; transform:translateY(-50%); background:rgba(201,163,82,.12); color:var(--gold); border:1px solid rgba(201,163,82,.4); width:52px; height:52px; border-radius:50%; font-size:24px; cursor:pointer; z-index:15; transition: background .15s, transform .15s; }
   button.nav:hover { background:rgba(201,163,82,.25); }
   button.nav:active { transform:translateY(-50%) scale(.94); }
@@ -29,6 +31,8 @@
     main { padding:60px 12px 60px; }
     button.nav { width:42px; height:42px; font-size:20px; }
     #prev { left:6px; } #next { right:6px; }
+    figure img { max-height:55vh; }
+    .note { font-size:14px; padding:12px 14px; }
   }
 </style>
 </head>
@@ -44,24 +48,95 @@
 <div class="lightbox" id="lb"><img id="lbimg" alt=""></div>
 <script>
 const pages = [
-  ["pages/00-cover.jpg","Cover"],
-  ["pages/01-egypt-was-old.jpg","Page 1 — Egypt was old"],
-  ["pages/02-exiled.jpg","Page 2 — Exiled"],
-  ["pages/03-the-bedroll.jpg","Page 3 — The Bedroll"],
-  ["pages/04-a-court.jpg","Page 4 — A Court in One Body"],
-  ["pages/05-caesarion.jpg","Page 5 — Caesarion"],
-  ["pages/06-ides.jpg","Page 6 — The Ides of March"],
-  ["pages/07-the-barge.jpg","Page 7 — The Barge on the Cydnus"],
-  ["pages/08-inimitable-livers.jpg","Page 8 — Inimitable Livers"],
-  ["pages/09-the-pearl.jpg","Page 9 — The Pearl"],
-  ["pages/10-actium.jpg","Page 10 — Actium"],
-  ["pages/11-companions.jpg","Page 11 — Companions to the Death"],
-  ["pages/12-in-praising-antony.jpg","Page 12 — In Praising Antony"],
-  ["pages/13-octavian.jpg","Page 13 — Octavian"],
-  ["pages/14-dressing-as-isis.jpg","Page 14 — Dressing as Isis"],
-  ["pages/15-the-asp.jpg","Page 15 — The Asp"],
-  ["pages/16-back-cover.jpg","Back Cover"]
+  {
+    src: "pages/00-cover.jpg",
+    label: "Cover",
+    note: "Cleopatra VII ruled Egypt from 51 to 30 BCE — over 2,000 years ago. She was the last pharaoh. After her, Egypt stopped being its own country and became part of the Roman Empire."
+  },
+  {
+    src: "pages/01-egypt-was-old.jpg",
+    label: "Page 1 — Egypt was old",
+    note: "Alexandria was Egypt's capital city, built on the Mediterranean coast. It had the biggest library in the world and a giant lighthouse — one of the Seven Wonders of the Ancient World. By Cleopatra's time, Egypt was already 3,000 years old. Rome was the new superpower next door, and it wanted Egypt's grain and gold."
+  },
+  {
+    src: "pages/02-exiled.jpg",
+    label: "Page 2 — Exiled",
+    note: "Cleopatra came from a family called the Ptolemies. They had a tradition that brothers and sisters got married to each other and ruled together. Her younger brother Ptolemy XIII forced her out of the palace, so she had to flee into the desert and raise an army."
+  },
+  {
+    src: "pages/03-the-bedroll.jpg",
+    label: "Page 3 — The Bedroll",
+    note: "This really happened. Cleopatra needed to meet Julius Caesar — the most powerful man in Rome — but the palace was guarded by her brother's soldiers. So she had a servant roll her up in a carpet (or a bedroll, depending on the source) and carry her past the guards. Caesar thought it was hilarious."
+  },
+  {
+    src: "pages/04-a-court.jpg",
+    label: "Page 4 — A Court in One Body",
+    note: "Cleopatra spoke at least 8 languages — Greek, Egyptian, Hebrew, Arabic, and more. The Greek historian Plutarch said her voice was so charming it was 'like an instrument of many strings.' She was the first ruler in her family in 300 years to bother learning Egyptian, the language of the people she ruled."
+  },
+  {
+    src: "pages/05-caesarion.jpg",
+    label: "Page 5 — Caesarion",
+    note: "Cleopatra and Caesar had a son named Caesarion ('little Caesar'). She loved him fiercely and planned for him to inherit both Egypt AND Rome. He was the only person she didn't have to perform for — with everyone else, she was always being a queen."
+  },
+  {
+    src: "pages/06-ides.jpg",
+    label: "Page 6 — The Ides of March",
+    note: "On March 15, 44 BCE — 'the Ides of March' — Caesar was murdered by Roman senators in Rome. The news traveled across the sea to Cleopatra in Alexandria. Her protector was gone. Now Rome would come for Egypt."
+  },
+  {
+    src: "pages/07-the-barge.jpg",
+    label: "Page 7 — The Barge on the Cydnus",
+    note: "After Caesar died, a new Roman general named Mark Antony summoned Cleopatra to a meeting at a city called Tarsus. She didn't just go — she made an entrance. She sailed up the Cydnus River on a golden barge with purple sails, dressed as the goddess of love. The whole town came to watch. Antony was completely outflanked before she even said hello."
+  },
+  {
+    src: "pages/08-inimitable-livers",
+    label: "Page 8 — Inimitable Livers",
+    note: "Cleopatra and Antony started a club in Alexandria called 'The Inimitable Livers' — meaning 'people whose lives can't be copied.' They threw huge parties and snuck around the city in disguise pulling pranks on shopkeepers. This was the happiest time in Cleopatra's life."
+  },
+  {
+    src: "pages/09-the-pearl.jpg",
+    label: "Page 9 — The Pearl",
+    note: "There's a famous story (told by the Roman writer Pliny) that Cleopatra bet Antony she could spend a fortune on one dinner. To win, she took off a giant pearl earring — worth more than a small country — dropped it into a cup of vinegar, and drank it. Whether it really happened or not, it's exactly the kind of thing she would do."
+  },
+  {
+    src: "pages/10-actium.jpg",
+    label: "Page 10 — Actium",
+    note: "In 31 BCE, Cleopatra and Antony fought a huge sea battle against Octavian (Caesar's adopted son and heir) at a place called Actium, on the coast of Greece. They lost. After Actium, the war was basically over. Octavian would soon be the most powerful man in the world."
+  },
+  {
+    src: "pages/11-companions.jpg",
+    label: "Page 11 — Companions to the Death",
+    note: "After losing at Actium, Cleopatra and Antony retreated home to Alexandria. They renamed their party club from 'The Inimitable Livers' to 'The Companions to the Death.' They knew Octavian was coming and there was no escape."
+  },
+  {
+    src: "pages/12-in-praising-antony.jpg",
+    label: "Page 12 — In Praising Antony",
+    note: "Antony got a false message that Cleopatra had killed herself. Heartbroken, he stabbed himself with his own sword. The message turned out to be wrong — Cleopatra was still alive, hiding in her tomb. He was carried to her and died in her arms. She buried him there."
+  },
+  {
+    src: "pages/13-octavian.jpg",
+    label: "Page 13 — Octavian",
+    note: "Octavian was Julius Caesar's great-nephew and adopted son. He was 32, cold, and brilliant. After winning, he took the name Augustus and became the first emperor of Rome. He told Cleopatra she would be marched through Rome in chains so the crowds could mock her — a Roman 'triumph' parade."
+  },
+  {
+    src: "pages/14-dressing-as-isis.jpg",
+    label: "Page 14 — Dressing as Isis",
+    note: "Isis was the Egyptian goddess of life, magic, and protection — and Cleopatra had spent her whole reign presenting herself as Isis on Earth. So when she decided she wouldn't be paraded through Rome, she dressed one final time as the goddess. Not for Octavian. For herself."
+  },
+  {
+    src: "pages/15-the-asp.jpg",
+    label: "Page 15 — The Asp",
+    note: "The legend says she had a poisonous snake — an asp — smuggled into her tomb in a basket of figs, and let it bite her. Historians aren't 100% sure if it was really a snake or maybe poison, but the snake is the iconic image. She died at 39. Caesarion was hunted down and killed weeks later. Egypt was now Rome's."
+  },
+  {
+    src: "pages/16-back-cover.jpg",
+    label: "Back Cover",
+    note: "Cleopatra was the last pharaoh in 3,000 years of Egyptian pharaohs. After her, Egypt was a Roman province for centuries. She remembered as the woman who used her wits, her voice, and her courage to keep Egypt free as long as she possibly could."
+  }
 ];
+// fix one typo in src
+pages[8].src = "pages/08-inimitable-livers.jpg";
+
 let idx = 0;
 const stage = document.getElementById('stage');
 const prevBtn = document.getElementById('prev');
@@ -72,15 +147,19 @@ const lb = document.getElementById('lb');
 const lbimg = document.getElementById('lbimg');
 
 function render() {
-  const [src, label] = pages[idx];
-  stage.innerHTML = `<figure><img src="${src}" alt="${label}"><figcaption>${label}</figcaption></figure>`;
+  const p = pages[idx];
+  stage.innerHTML = `<figure>
+    <img src="${p.src}" alt="${p.label}">
+    <figcaption>${p.label}</figcaption>
+    <div class="note"><strong>History note</strong>${p.note}</div>
+  </figure>`;
+  stage.scrollTop = 0;
   counter.textContent = `${idx+1} / ${pages.length}`;
   prog.style.width = ((idx+1) / pages.length * 100) + '%';
   prevBtn.disabled = idx === 0;
   nextBtn.disabled = idx === pages.length - 1;
-  // preload neighbors
-  if (idx+1 < pages.length) new Image().src = pages[idx+1][0];
-  if (idx-1 >= 0) new Image().src = pages[idx-1][0];
+  if (idx+1 < pages.length) new Image().src = pages[idx+1].src;
+  if (idx-1 >= 0) new Image().src = pages[idx-1].src;
   history.replaceState(null, '', '#' + (idx+1));
 }
 function go(n) {
@@ -98,12 +177,12 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') lb.classList.remove('open');
     return;
   }
-  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); go(1); }
   if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
   if (e.key === 'Home') { idx = 0; render(); }
   if (e.key === 'End') { idx = pages.length-1; render(); }
 });
-// touch swipe
 let touchX = null;
 window.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
 window.addEventListener('touchend', e => {
@@ -112,7 +191,6 @@ window.addEventListener('touchend', e => {
   if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
   touchX = null;
 });
-// hash deep-link
 const h = parseInt(location.hash.slice(1), 10);
 if (!isNaN(h) && h >= 1 && h <= pages.length) idx = h-1;
 render();
