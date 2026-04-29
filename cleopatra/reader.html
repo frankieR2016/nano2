@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Last Pharaoh — A Life of Cleopatra</title>
+<style>
+  :root { --gold:#c9a352; --lapis:#1d3a6e; --ivory:#efe7d2; --bg:#0b0b0d; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:var(--bg); color:var(--ivory); font-family: Georgia, "Times New Roman", serif; height:100%; overflow:hidden; }
+  header { position:fixed; top:0; left:0; right:0; z-index:10; padding:12px 18px; background:rgba(11,11,13,.85); backdrop-filter:blur(8px); border-bottom:1px solid rgba(201,163,82,.25); display:flex; justify-content:space-between; align-items:baseline; }
+  header h1 { font-size:16px; margin:0; letter-spacing:.06em; color:var(--gold); }
+  header small { color:rgba(239,231,210,.6); font-size:12px; }
+  #progress { position:fixed; top:0; left:0; height:3px; width:0; background:var(--gold); z-index:20; transition:width .25s ease; }
+  main { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:60px 80px 60px; }
+  figure { margin:0; text-align:center; max-height:100%; max-width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  figure img { max-height:calc(100vh - 130px); max-width:100%; height:auto; width:auto; cursor:zoom-in; border-radius:4px; box-shadow:0 10px 30px rgba(0,0,0,.6); display:block; }
+  figcaption { color:rgba(239,231,210,.55); font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  button.nav { position:fixed; top:50%; transform:translateY(-50%); background:rgba(201,163,82,.12); color:var(--gold); border:1px solid rgba(201,163,82,.4); width:52px; height:52px; border-radius:50%; font-size:24px; cursor:pointer; z-index:15; transition: background .15s, transform .15s; }
+  button.nav:hover { background:rgba(201,163,82,.25); }
+  button.nav:active { transform:translateY(-50%) scale(.94); }
+  button.nav:disabled { opacity:.25; cursor:not-allowed; }
+  #prev { left:18px; }
+  #next { right:18px; }
+  .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.95); display:none; align-items:center; justify-content:center; z-index:50; cursor:zoom-out; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:96vw; max-height:96vh; }
+  @media (max-width:600px) {
+    main { padding:60px 12px 60px; }
+    button.nav { width:42px; height:42px; font-size:20px; }
+    #prev { left:6px; } #next { right:6px; }
+  }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<header>
+  <h1>THE LAST PHARAOH</h1>
+  <small id="counter">— · —</small>
+</header>
+<button class="nav" id="prev" aria-label="Previous page">‹</button>
+<main id="stage"></main>
+<button class="nav" id="next" aria-label="Next page">›</button>
+<div class="lightbox" id="lb"><img id="lbimg" alt=""></div>
+<script>
+const pages = [
+  ["pages/00-cover.jpg","Cover"],
+  ["pages/01-egypt-was-old.jpg","Page 1 — Egypt was old"],
+  ["pages/02-exiled.jpg","Page 2 — Exiled"],
+  ["pages/03-the-bedroll.jpg","Page 3 — The Bedroll"],
+  ["pages/04-a-court.jpg","Page 4 — A Court in One Body"],
+  ["pages/05-caesarion.jpg","Page 5 — Caesarion"],
+  ["pages/06-ides.jpg","Page 6 — The Ides of March"],
+  ["pages/07-the-barge.jpg","Page 7 — The Barge on the Cydnus"],
+  ["pages/08-inimitable-livers.jpg","Page 8 — Inimitable Livers"],
+  ["pages/09-the-pearl.jpg","Page 9 — The Pearl"],
+  ["pages/10-actium.jpg","Page 10 — Actium"],
+  ["pages/11-companions.jpg","Page 11 — Companions to the Death"],
+  ["pages/12-in-praising-antony.jpg","Page 12 — In Praising Antony"],
+  ["pages/13-octavian.jpg","Page 13 — Octavian"],
+  ["pages/14-dressing-as-isis.jpg","Page 14 — Dressing as Isis"],
+  ["pages/15-the-asp.jpg","Page 15 — The Asp"],
+  ["pages/16-back-cover.jpg","Back Cover"]
+];
+let idx = 0;
+const stage = document.getElementById('stage');
+const prevBtn = document.getElementById('prev');
+const nextBtn = document.getElementById('next');
+const counter = document.getElementById('counter');
+const prog = document.getElementById('progress');
+const lb = document.getElementById('lb');
+const lbimg = document.getElementById('lbimg');
+
+function render() {
+  const [src, label] = pages[idx];
+  stage.innerHTML = `<figure><img src="${src}" alt="${label}"><figcaption>${label}</figcaption></figure>`;
+  counter.textContent = `${idx+1} / ${pages.length}`;
+  prog.style.width = ((idx+1) / pages.length * 100) + '%';
+  prevBtn.disabled = idx === 0;
+  nextBtn.disabled = idx === pages.length - 1;
+  // preload neighbors
+  if (idx+1 < pages.length) new Image().src = pages[idx+1][0];
+  if (idx-1 >= 0) new Image().src = pages[idx-1][0];
+  history.replaceState(null, '', '#' + (idx+1));
+}
+function go(n) {
+  const next = Math.max(0, Math.min(pages.length-1, idx + n));
+  if (next !== idx) { idx = next; render(); }
+}
+prevBtn.addEventListener('click', () => go(-1));
+nextBtn.addEventListener('click', () => go(1));
+stage.addEventListener('click', e => {
+  if (e.target.tagName === 'IMG') { lbimg.src = e.target.src; lb.classList.add('open'); }
+});
+lb.addEventListener('click', () => lb.classList.remove('open'));
+window.addEventListener('keydown', e => {
+  if (lb.classList.contains('open')) {
+    if (e.key === 'Escape') lb.classList.remove('open');
+    return;
+  }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); go(-1); }
+  if (e.key === 'Home') { idx = 0; render(); }
+  if (e.key === 'End') { idx = pages.length-1; render(); }
+});
+// touch swipe
+let touchX = null;
+window.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, {passive:true});
+window.addEventListener('touchend', e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+  touchX = null;
+});
+// hash deep-link
+const h = parseInt(location.hash.slice(1), 10);
+if (!isNaN(h) && h >= 1 && h <= pages.length) idx = h-1;
+render();
+</script>
+</body>
+</html>

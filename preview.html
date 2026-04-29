@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Viking Shield — 2-Piece 3D Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; color: #e0e0e0; font-family: system-ui, sans-serif; overflow: hidden; }
+  canvas { display: block; }
+  #ui {
+    position: absolute; top: 16px; left: 16px; z-index: 10;
+    display: flex; flex-direction: column; gap: 8px; max-width: 300px;
+  }
+  #ui h1 { font-size: 20px; font-weight: 600; color: #f0d060; }
+  #ui p { font-size: 13px; color: #aaa; line-height: 1.4; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 16px; border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-dl { background: #2d6a4f; color: #fff; }
+  .btn-dl:hover { background: #40916c; }
+  .btn-view { background: #333; color: #ccc; }
+  .btn-view:hover { background: #444; }
+  .btn-view.active { background: #4a4a8a; color: #fff; }
+  #info {
+    position: absolute; bottom: 16px; left: 16px; z-index: 10;
+    font-size: 12px; color: #666;
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <h1>Viking Shield — 2 Piece</h1>
+  <p>150mm diameter &bull; Drag to rotate &bull; Scroll to zoom</p>
+  <div class="btn-row">
+    <button class="btn btn-view active" id="btn-both">Both Pieces</button>
+    <button class="btn btn-view" id="btn-shield">Shield Only</button>
+    <button class="btn btn-view" id="btn-handle">Handle Only</button>
+    <button class="btn btn-view" id="btn-assembled">Assembled</button>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-dl" id="dl-shield">Download Shield STL</button>
+    <button class="btn btn-dl" id="dl-handle">Download Handle STL</button>
+  </div>
+</div>
+<div id="info">Glue handle to shield back after printing</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.183.2/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+renderer.setClearColor(0x1a1a2e);
+document.body.appendChild(renderer.domElement);
+
+const SR=75, ST=5, BR=20, BH=12, BRO=24, BRI=20, BRH=3;
+const RI=71, RO=75, RH=7, PW=1.2, PH=0.8;
+const HL=70, HW=10, HH=8, HG=6, PsW=12, PsD=10, SEG=64;
+const postH=HG+HH, postSp=HL/2-PsW/2;
+
+const woodM = new THREE.MeshStandardMaterial({color:0x8B6914, roughness:0.8});
+const metalM = new THREE.MeshStandardMaterial({color:0x888888, roughness:0.3, metalness:0.8});
+const rimM = new THREE.MeshStandardMaterial({color:0x666666, roughness:0.4, metalness:0.7});
+const plankM = new THREE.MeshStandardMaterial({color:0x6B5510, roughness:0.9});
+const handleM = new THREE.MeshStandardMaterial({color:0x777777, roughness:0.4, metalness:0.6});
+
+// === BUILD SHIELD ===
+const shieldG = new THREE.Group();
+
+const body = new THREE.Mesh(new THREE.CylinderGeometry(SR,SR,ST,SEG), woodM);
+body.position.y = -ST/2; shieldG.add(body);
+
+const dp=[new THREE.Vector2(0,0)];
+for(let i=32;i>=0;i--){const a=(i/32)*Math.PI/2; dp.push(new THREE.Vector2(BR*Math.cos(a),BH*Math.sin(a)));}
+shieldG.add(new THREE.Mesh(new THREE.LatheGeometry(dp,SEG), metalM));
+
+const ring=new THREE.Mesh(new THREE.CylinderGeometry(BRI,BRO,BRH,SEG),metalM);
+ring.position.y=BRH/2; shieldG.add(ring);
+
+const rp=[new THREE.Vector2(RI,0),new THREE.Vector2(RO,0),new THREE.Vector2(RO,RH-ST),new THREE.Vector2(RI,RH-ST)];
+const rim=new THREE.Mesh(new THREE.LatheGeometry(rp,SEG),rimM);
+rim.position.y=-ST; shieldG.add(rim);
+
+for(const px of [-45,-22,22,45]){
+  const c=2*Math.sqrt(Math.max(0,SR*SR-px*px))-8;
+  if(c<=0) continue;
+  const p=new THREE.Mesh(new THREE.BoxGeometry(PW,PH,c),plankM);
+  p.position.set(px,PH/2,0); shieldG.add(p);
+}
+
+// Clean flat back — nothing on the back surface
+
+// === BUILD HANDLE (posts + bridge bar, no plate) ===
+const handleG = new THREE.Group();
+
+// Posts
+const pGeo=new THREE.BoxGeometry(PsW,postH,PsD);
+const pL=new THREE.Mesh(pGeo,handleM); pL.position.set(-postSp,-ST-postH/2,0); handleG.add(pL);
+const pR=new THREE.Mesh(pGeo,handleM); pR.position.set(postSp,-ST-postH/2,0); handleG.add(pR);
+
+// Bridge bar
+const hBar=new THREE.Mesh(new THREE.BoxGeometry(HL,HH,HW),handleM);
+hBar.position.set(0,-ST-HG-HH/2,0); handleG.add(hBar);
+
+scene.add(shieldG);
+scene.add(handleG);
+
+// Lighting
+scene.add(new THREE.DirectionalLight(0xffffff,1.5).translateX(50).translateY(100).translateZ(80));
+scene.add(new THREE.DirectionalLight(0x8888ff,0.4).translateX(-50).translateY(50).translateZ(-50));
+scene.add(new THREE.AmbientLight(0x505050,1.0));
+
+const grid = new THREE.GridHelper(300, 30, 0x333333, 0x222222);
+grid.position.y = -ST - postH - 10;
+scene.add(grid);
+
+camera.position.set(0, 50, 280);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, -10, 0);
+controls.enableDamping = true;
+
+// View modes
+let mode = 'both';
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.btn-view').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + m).classList.add('active');
+
+  if (m === 'both') {
+    shieldG.visible = true; handleG.visible = true;
+    shieldG.position.x = -90; handleG.position.x = 90;
+    shieldG.rotation.set(-0.4, 0, 0); handleG.rotation.set(-0.4, 0, 0);
+  } else if (m === 'shield') {
+    shieldG.visible = true; handleG.visible = false;
+    shieldG.position.x = 0; shieldG.rotation.set(0.3, 0, 0);
+  } else if (m === 'handle') {
+    shieldG.visible = false; handleG.visible = true;
+    handleG.position.x = 0; handleG.rotation.set(-0.5, 0, 0);
+  } else if (m === 'assembled') {
+    shieldG.visible = true; handleG.visible = true;
+    shieldG.position.x = 0; handleG.position.x = 0;
+    shieldG.rotation.set(-0.5, 0, 0); handleG.rotation.set(-0.5, 0, 0);
+  }
+}
+
+document.getElementById('btn-both').onclick = () => setMode('both');
+document.getElementById('btn-shield').onclick = () => setMode('shield');
+document.getElementById('btn-handle').onclick = () => setMode('handle');
+document.getElementById('btn-assembled').onclick = () => setMode('assembled');
+setMode('both');
+
+// STL download helper
+function downloadSTL(group, filename) {
+  const exporter = new STLExporter();
+  const data = exporter.parse(group, { binary: true });
+  const buf = data instanceof DataView ? data.buffer : data;
+  const blob = new Blob([buf], { type: 'application/octet-stream' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('dl-shield').onclick = () => downloadSTL(shieldG, 'viking-shield-face.stl');
+document.getElementById('dl-handle').onclick = () => downloadSTL(handleG, 'viking-shield-handle.stl');
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

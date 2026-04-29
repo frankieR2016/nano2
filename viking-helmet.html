@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viking Helmet — 3D Printable</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #1a1a2e; overflow: hidden; font-family: system-ui, sans-serif; }
+  canvas { display: block; }
+  #ui {
+    position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px;
+  }
+  button {
+    background: #8B7530; color: #fff; border: none; padding: 12px 24px;
+    font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  button:hover { background: #a88a3a; }
+  #info {
+    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    color: #8899aa; font-size: 13px; pointer-events: none; user-select: none;
+  }
+  #specs {
+    position: absolute; top: 20px; right: 20px; color: #8899aa; font-size: 12px;
+    line-height: 1.6; text-align: right;
+  }
+  #specs strong { color: #bbb; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <button id="exportBtn">Download STL</button>
+</div>
+<div id="specs">
+  <strong>Print Specs</strong><br>
+  Dome: ~200 x 220 x 120 mm<br>
+  Wall thickness: 3.5 mm<br>
+  Min feature: 5 mm tubes / 3 mm rivets<br>
+  Hollow interior (wearable)<br>
+  Watertight solid shell<br>
+  Horns sealed with end caps<br>
+  Recommended: 0.2mm layer, 15% infill
+</div>
+<div id="info">Drag to rotate &middot; Scroll to zoom</div>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1a2e);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+document.body.appendChild(renderer.domElement);
+
+const darkSteel = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, metalness: 0.85, roughness: 0.4, side: THREE.DoubleSide });
+const warmBrass = new THREE.MeshStandardMaterial({ color: 0x8B7530, metalness: 0.9, roughness: 0.3 });
+const hornMat = new THREE.MeshStandardMaterial({ color: 0x888070, metalness: 0.3, roughness: 0.5 });
+const hornBaseMat = new THREE.MeshStandardMaterial({ color: 0x5a4a30, metalness: 0.6, roughness: 0.4 });
+const rivetMat = new THREE.MeshStandardMaterial({ color: 0x9a8540, metalness: 0.95, roughness: 0.2 });
+
+const WALL = 3.5;
+const helmet = new THREE.Group();
+
+// === SOLID DOME SHELL — single watertight lathe profile ===
+const SEG = 48, PROF_STEPS = 50;
+const outerR = 100, innerR = outerR - WALL;
+const outerH = 120, innerH = outerH - WALL;
+const taper = 0.15, scaleZ = 1.1;
+
+const shellProfile = [];
+shellProfile.push(new THREE.Vector2(0, outerH));
+for (let i = 0; i <= PROF_STEPS; i++) {
+  const t = i / PROF_STEPS;
+  const angle = t * Math.PI * 0.52;
+  const r = Math.sin(angle) * outerR * (1.0 - t * taper);
+  const y = Math.cos(angle) * outerH;
+  shellProfile.push(new THREE.Vector2(r, y));
+}
+const outerRimR = Math.sin(Math.PI * 0.52) * outerR * (1.0 - taper);
+const innerRimR = Math.sin(Math.PI * 0.52) * innerR * (1.0 - taper);
+shellProfile.push(new THREE.Vector2(outerRimR, 0));
+shellProfile.push(new THREE.Vector2(innerRimR, 0));
+for (let i = PROF_STEPS; i >= 0; i--) {
+  const t = i / PROF_STEPS;
+  const angle = t * Math.PI * 0.52;
+  const r = Math.sin(angle) * innerR * (1.0 - t * taper);
+  const y = Math.cos(angle) * innerH;
+  shellProfile.push(new THREE.Vector2(r, y));
+}
+shellProfile.push(new THREE.Vector2(0, innerH));
+
+const shellGeo = new THREE.LatheGeometry(shellProfile, SEG);
+const shell = new THREE.Mesh(shellGeo, darkSteel);
+shell.scale.set(1, 1, scaleZ);
+helmet.add(shell);
+
+// === BROW BAND ===
+const browGeo = new THREE.TorusGeometry(outerR + 2, 6, 16, SEG);
+const brow = new THREE.Mesh(browGeo, warmBrass);
+brow.position.y = 10;
+brow.scale.set(1, 0.7, scaleZ);
+helmet.add(brow);
+
+// === CROSS-BANDS ===
+function makeBand(rotY) {
+  const pts = [];
+  for (let i = 0; i <= 60; i++) {
+    const t = i / 60;
+    const angle = t * Math.PI - Math.PI * 0.5;
+    const r = outerR + 2;
+    const x = Math.sin(angle) * r * scaleZ;
+    const y = Math.cos(angle) * (outerH + 2) * (1.0 - Math.abs(Math.sin(angle)) * 0.1);
+    pts.push(new THREE.Vector3(0, y, x));
+  }
+  const curve = new THREE.CatmullRomCurve3(pts);
+  const shape = new THREE.Shape();
+  shape.moveTo(-4, 0); shape.lineTo(-4, 5); shape.lineTo(4, 5); shape.lineTo(4, 0); shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, { steps: 60, extrudePath: curve, bevelEnabled: false });
+  const m = new THREE.Mesh(geo, warmBrass);
+  m.rotation.y = rotY;
+  helmet.add(m);
+}
+makeBand(0);
+makeBand(Math.PI / 2);
+
+// === NOSE RIDGE ===
+const nosePts = [
+  new THREE.Vector3(0, 65, 112), new THREE.Vector3(0, 40, 120),
+  new THREE.Vector3(0, 10, 118), new THREE.Vector3(0, -20, 112),
+  new THREE.Vector3(0, -50, 100), new THREE.Vector3(0, -68, 90),
+];
+const noseCurve = new THREE.CatmullRomCurve3(nosePts);
+const noseShape = new THREE.Shape();
+noseShape.moveTo(-5, -2); noseShape.lineTo(0, 8); noseShape.lineTo(5, -2); noseShape.closePath();
+const noseGeo = new THREE.ExtrudeGeometry(noseShape, { steps: 50, extrudePath: noseCurve, bevelEnabled: false });
+helmet.add(new THREE.Mesh(noseGeo, warmBrass));
+
+// === SPECTACLE EYE RINGS ===
+function makeEyeRing(side) {
+  const s = side === 'left' ? 1 : -1;
+  const curve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(s*14, 8, 118), new THREE.Vector3(s*28, 22, 116),
+    new THREE.Vector3(s*48, 20, 110), new THREE.Vector3(s*58, 6, 104),
+    new THREE.Vector3(s*50, -10, 107), new THREE.Vector3(s*32, -14, 113),
+    new THREE.Vector3(s*16, -4, 117), new THREE.Vector3(s*14, 8, 118),
+  ], true);
+  helmet.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 5, 12, true), warmBrass));
+  const browC = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(s*12, 18, 119), new THREE.Vector3(s*32, 32, 114),
+    new THREE.Vector3(s*52, 28, 108), new THREE.Vector3(s*64, 16, 100),
+  ]);
+  helmet.add(new THREE.Mesh(new THREE.TubeGeometry(browC, 24, 4, 10, false), warmBrass));
+}
+makeEyeRing('left');
+makeEyeRing('right');
+
+// === CHEEK GUARDS ===
+function makeCheekPlate(side) {
+  const s = side === 'left' ? 1 : -1;
+  const shape = new THREE.Shape();
+  shape.moveTo(0, 0); shape.lineTo(28, -5);
+  shape.quadraticCurveTo(35, -28, 28, -55);
+  shape.quadraticCurveTo(18, -72, 0, -65);
+  shape.quadraticCurveTo(-12, -48, -10, -15); shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape, {
+    depth: 5, bevelEnabled: true, bevelThickness: 1.5, bevelSize: 1.5, bevelSegments: 4
+  });
+  const mesh = new THREE.Mesh(geo, darkSteel);
+  mesh.position.set(s * 78, -2, 68);
+  mesh.rotation.set(0.05, s * -0.65, 0);
+  helmet.add(mesh);
+}
+makeCheekPlate('left');
+makeCheekPlate('right');
+
+// === HORNS — fully sealed solid tubes ===
+function makeHorn(side) {
+  const s = side === 'left' ? 1 : -1;
+  const hornCurve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(s*98, 18, 18), new THREE.Vector3(s*118, 10, 22),
+    new THREE.Vector3(s*138, -5, 16), new THREE.Vector3(s*150, -18, 5),
+    new THREE.Vector3(s*155, -25, -10),
+  ]);
+  const radii = [12, 10, 8, 6, 5];
+  const frames = hornCurve.computeFrenetFrames(radii.length - 1, false);
+  const pts = hornCurve.getSpacedPoints(radii.length - 1);
+  const segs = radii.length - 1, rS = 16;
+  const v = [], ix = [], n = [];
+
+  const baseCenter = pts[0], tipCenter = pts[segs];
+
+  // Base cap center vertex
+  v.push(baseCenter.x, baseCenter.y, baseCenter.z);
+  n.push(0, 0, -1);
+
+  // Body vertices
+  for (let i = 0; i <= segs; i++) {
+    const r = radii[i], N = frames.normals[i], B = frames.binormals[i], P = pts[i];
+    for (let j = 0; j <= rS; j++) {
+      const a = (j / rS) * Math.PI * 2;
+      const nx = Math.cos(a)*N.x + Math.sin(a)*B.x;
+      const ny = Math.cos(a)*N.y + Math.sin(a)*B.y;
+      const nz = Math.cos(a)*N.z + Math.sin(a)*B.z;
+      v.push(P.x + r*nx, P.y + r*ny, P.z + r*nz);
+      n.push(nx, ny, nz);
+    }
+  }
+
+  // Tip cap center vertex
+  const tipIdx = v.length / 3;
+  v.push(tipCenter.x, tipCenter.y, tipCenter.z);
+  n.push(0, 0, 1);
+
+  const bodyStart = 1;
+  // Base cap fan
+  for (let j = 0; j < rS; j++) {
+    ix.push(0, bodyStart + j + 1, bodyStart + j);
+  }
+  // Body quads
+  for (let i = 0; i < segs; i++) {
+    for (let j = 0; j < rS; j++) {
+      const a = bodyStart + i*(rS+1) + j, b = a + rS + 1;
+      ix.push(a, b, a+1, b, b+1, a+1);
+    }
+  }
+  // Tip cap fan
+  const lastRing = bodyStart + segs*(rS+1);
+  for (let j = 0; j < rS; j++) {
+    ix.push(tipIdx, lastRing + j, lastRing + j + 1);
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(n, 3));
+  geo.setIndex(ix);
+  geo.computeVertexNormals();
+  helmet.add(new THREE.Mesh(geo, hornMat));
+
+  // Mount collar
+  const mountGeo = new THREE.CylinderGeometry(12, 16, 14, 16);
+  const mount = new THREE.Mesh(mountGeo, hornBaseMat);
+  mount.position.set(s*98, 18, 18);
+  mount.rotation.z = s * Math.PI / 2;
+  helmet.add(mount);
+
+  // Brass ring
+  const ringGeo = new THREE.TorusGeometry(14, 2.5, 10, 20);
+  const ring = new THREE.Mesh(ringGeo, warmBrass);
+  ring.position.set(s*98, 18, 18);
+  ring.rotation.set(Math.PI/2, 0, 0);
+  ring.rotation.y = s * Math.PI / 2;
+  helmet.add(ring);
+}
+makeHorn('left');
+makeHorn('right');
+
+// === NECK GUARD ===
+const nkShape = new THREE.Shape();
+nkShape.moveTo(-60, 0);
+nkShape.quadraticCurveTo(-50, -35, -10, -40);
+nkShape.lineTo(10, -40);
+nkShape.quadraticCurveTo(50, -35, 60, 0);
+nkShape.closePath();
+const nkGeo = new THREE.ExtrudeGeometry(nkShape, {
+  depth: 5, bevelEnabled: true, bevelThickness: 1.5, bevelSize: 1.5, bevelSegments: 3
+});
+const nkMesh = new THREE.Mesh(nkGeo, darkSteel);
+nkMesh.position.set(0, 2, -112);
+nkMesh.rotation.x = -0.25;
+helmet.add(nkMesh);
+
+
+// Scale for viewer (mm -> display)
+helmet.scale.set(0.01, 0.01, 0.01);
+helmet.position.y = -0.1;
+helmet.rotation.x = 0.1;
+scene.add(helmet);
+
+// === STL EXPORT ===
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const exportScene = new THREE.Scene();
+  helmet.updateMatrixWorld(true);
+  helmet.traverse((child) => {
+    if (child.isMesh && child.geometry) {
+      const geo = child.geometry.clone();
+      const mat = child.matrixWorld.clone();
+      // Undo the 0.01 display scale to get back to mm
+      const unscale = new THREE.Matrix4().makeScale(100, 100, 100);
+      mat.premultiply(unscale);
+      geo.applyMatrix4(mat);
+      exportScene.add(new THREE.Mesh(geo));
+    }
+  });
+  const exporter = new STLExporter();
+  const result = exporter.parse(exportScene, { binary: true });
+  const blob = new Blob([result], { type: 'application/octet-stream' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'viking-helmet.stl';
+  link.click();
+  URL.revokeObjectURL(link.href);
+});
+
+// === LIGHTING ===
+const key = new THREE.DirectionalLight(0xffe8c0, 2.2);
+key.position.set(3, 4, 5); scene.add(key);
+const fill = new THREE.DirectionalLight(0x7788aa, 0.5);
+fill.position.set(-4, 2, -2); scene.add(fill);
+const rimL = new THREE.DirectionalLight(0xffaa33, 0.9);
+rimL.position.set(-1, 3, -5); scene.add(rimL);
+const under = new THREE.DirectionalLight(0x554422, 0.3);
+under.position.set(0, -2, 2); scene.add(under);
+scene.add(new THREE.AmbientLight(0x222233, 0.35));
+
+const gnd = new THREE.Mesh(
+  new THREE.CircleGeometry(3, 64),
+  new THREE.MeshStandardMaterial({ color: 0x1a1a2e, metalness: 0.3, roughness: 0.8, transparent: true, opacity: 0.5 })
+);
+gnd.rotation.x = -Math.PI/2; gnd.position.y = -0.8; scene.add(gnd);
+
+camera.position.set(0, 0.8, 3.2);
+camera.lookAt(0, 0.2, 0);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.target.set(0, 0.2, 0);
+controls.minDistance = 1.5; controls.maxDistance = 8;
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  helmet.rotation.y += 0.003;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

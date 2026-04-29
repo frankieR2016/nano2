@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \":*)",
+      "mcp__13a549b6-5304-4f03-a582-2c58824892a5__show_threejs_scene",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(node viking-shield.mjs)",
+      "Bash(node -e \"import\\(''three-bvh-csg''\\).then\\(m => console.log\\(Object.keys\\(m\\)\\)\\).catch\\(e => console.error\\(e.message\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(python -c \"from PIL import Image; im = Image.open\\(r''C:\\\\Users\\\\paqui\\\\OneDrive\\\\Documents\\\\claude_code\\\\nano2\\\\zoro-luffy-chess.jpg''\\); print\\(im.size\\)\")",
+      "Bash(ffmpeg -y -i \"C:\\\\Users\\\\paqui\\\\OneDrive\\\\Documents\\\\claude_code\\\\nano2\\\\zoro-luffy-chess.jpg\" -vf \"scale=iw/2:ih/2\" \"C:\\\\Users\\\\paqui\\\\OneDrive\\\\Documents\\\\claude_code\\\\nano2\\\\zoro-luffy-chess-small.jpg\")",
+      "Bash(ffmpeg -y -i \"C:\\\\Users\\\\paqui\\\\OneDrive\\\\Documents\\\\claude_code\\\\nano2\\\\zoro-luffy-chess-small.jpg\" -vf \"crop=min\\(iw\\\\,ih\\):min\\(iw\\\\,ih\\)\" -update 1 -frames:v 1 \"C:\\\\Users\\\\paqui\\\\OneDrive\\\\Documents\\\\claude_code\\\\nano2\\\\zoro-luffy-chess-square.jpg\")",
+      "mcp__gemini-nanobanana-mcp__generate_image",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(mkdir -p \"C:/Users/paqui/.claude/skills/video-quote\")",
+      "Read(//c/Users/paqui/.claude/**)",
+      "mcp__gemini-nanobanana-mcp__compose_images",
+      "Bash(gh auth *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

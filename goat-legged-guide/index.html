@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hooves & Horns: The Guide to Goat-Legged Beings</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #d4a855;
+    --gold-dim: #a07830;
+    --bg-dark: #0d0f14;
+    --bg-card: #161a22;
+    --bg-card-hover: #1c212b;
+    --text: #e0ddd5;
+    --text-dim: #9a9690;
+    --accent-green: #4a7a5a;
+    --accent-blue: #3a5a8a;
+    --border: #2a2e38;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Lora', Georgia, serif;
+    line-height: 1.75;
+    font-size: 17px;
+  }
+
+  /* ── Hero Section ── */
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: 90vh;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55) saturate(1.1);
+  }
+
+  .hero-overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 60px 24px 80px;
+    background: linear-gradient(transparent, rgba(13,15,20,0.85) 40%, var(--bg-dark));
+    width: 100%;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    font-size: clamp(2.4rem, 6vw, 4.5rem);
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.7);
+    margin-bottom: 12px;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: clamp(1rem, 2.5vw, 1.35rem);
+    color: var(--text-dim);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .hero-intro {
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  /* ── Navigation Dots ── */
+  .nav-dots {
+    position: fixed;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--text-dim);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .nav-dot:hover, .nav-dot.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    transform: scale(1.3);
+  }
+
+  /* ── Section Layout ── */
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 24px;
+  }
+
+  .section-number {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    color: var(--gold);
+    margin-bottom: 28px;
+    line-height: 1.3;
+  }
+
+  .section-img-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    border: 1px solid var(--border);
+  }
+
+  .section-img-wrapper img {
+    width: 100%;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .section-img-wrapper:hover img {
+    transform: scale(1.03);
+  }
+
+  .section-text p {
+    margin-bottom: 18px;
+    color: var(--text);
+  }
+
+  .section-text p:last-child {
+    margin-bottom: 0;
+  }
+
+  .highlight {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    max-width: 200px;
+    margin: 0 auto;
+    border: none;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+
+  .divider::after {
+    content: '\2726';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-dark);
+    color: var(--gold-dim);
+    padding: 0 12px;
+    font-size: 1rem;
+  }
+
+  /* ── Fun Fact Boxes ── */
+  .fun-fact {
+    background: var(--bg-card);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 22px;
+    margin: 24px 0;
+    font-style: italic;
+    color: var(--text-dim);
+  }
+
+  .fun-fact strong {
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px;
+    margin: 40px auto 0;
+  }
+
+  .footer .hoof-prints {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    letter-spacing: 8px;
+  }
+
+  /* ── Scroll Animations ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Quiz ── */
+  .quiz-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 80px 24px;
+  }
+
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .quiz-header .section-number { margin-bottom: 8px; }
+
+  .quiz-score {
+    display: none;
+    text-align: center;
+    padding: 40px 24px;
+    margin-top: 32px;
+  }
+
+  .quiz-score.show { display: block; }
+
+  .score-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 4px solid var(--gold);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    background: var(--bg-card);
+  }
+
+  .score-number {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .score-message {
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .quiz-restart {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    padding: 10px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .quiz-restart:hover {
+    background: var(--gold);
+    color: var(--bg-dark);
+  }
+
+  .quiz-question {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+
+  .quiz-question.correct { border-color: #4a7a5a; }
+  .quiz-question.incorrect { border-color: #8a3a3a; }
+
+  .quiz-q-number {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    color: var(--gold-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .quiz-q-text {
+    font-size: 1.05rem;
+    color: var(--text);
+    font-weight: 600;
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+
+  .quiz-option {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 18px;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: 'Lora', Georgia, serif;
+    font-size: 0.95rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .quiz-option:hover:not(.disabled) {
+    border-color: var(--gold-dim);
+    background: var(--bg-card-hover);
+  }
+
+  .quiz-option .opt-letter {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--text-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    transition: all 0.25s;
+  }
+
+  .quiz-option.selected {
+    border-color: var(--gold);
+    background: rgba(212, 168, 85, 0.1);
+  }
+
+  .quiz-option.selected .opt-letter {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(212, 168, 85, 0.15);
+  }
+
+  .quiz-option.selected-correct {
+    border-color: #4a7a5a;
+    background: rgba(74, 122, 90, 0.15);
+  }
+
+  .quiz-option.selected-correct .opt-letter {
+    background: #4a7a5a;
+    border-color: #4a7a5a;
+    color: #fff;
+  }
+
+  .quiz-option.selected-wrong {
+    border-color: #8a3a3a;
+    background: rgba(138, 58, 58, 0.15);
+  }
+
+  .quiz-option.selected-wrong .opt-letter {
+    background: #8a3a3a;
+    border-color: #8a3a3a;
+    color: #fff;
+  }
+
+  .quiz-option.reveal-correct {
+    border-color: #4a7a5a;
+  }
+
+  .quiz-option.reveal-correct .opt-letter {
+    border-color: #4a7a5a;
+    color: #4a7a5a;
+  }
+
+  .quiz-option.disabled { cursor: default; pointer-events: none; }
+
+  .quiz-explanation {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+
+  .quiz-explanation.show { display: block; }
+
+  .quiz-explanation.right {
+    background: rgba(74, 122, 90, 0.12);
+    color: #8ac4a0;
+    border-left: 3px solid #4a7a5a;
+  }
+
+  .quiz-explanation.wrong {
+    background: rgba(138, 58, 58, 0.12);
+    color: #c48a8a;
+    border-left: 3px solid #8a3a3a;
+  }
+
+  .submit-quiz {
+    display: none;
+    margin: 32px auto 0;
+    background: var(--gold);
+    color: var(--bg-dark);
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .submit-quiz.show { display: block; }
+
+  .submit-quiz:hover {
+    background: #e6bc6a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(212, 168, 85, 0.3);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .nav-dots { display: none; }
+    .section { padding: 50px 18px; }
+    body { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Navigation Dots -->
+<nav class="nav-dots" aria-label="Section navigation">
+  <a class="nav-dot active" href="#hero" title="Top"></a>
+  <a class="nav-dot" href="#section1" title="What Are They?"></a>
+  <a class="nav-dot" href="#section2" title="Greek Satyrs"></a>
+  <a class="nav-dot" href="#section3" title="The God Pan"></a>
+  <a class="nav-dot" href="#section4" title="Roman Fauns"></a>
+  <a class="nav-dot" href="#section5" title="In Stories Today"></a>
+  <a class="nav-dot" href="#quiz" title="Quiz"></a>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="hero">
+  <img class="hero-img" src="images/01-hero.png" alt="A majestic satyr standing on a cliff at golden hour">
+  <div class="hero-overlay">
+    <div class="hero-subtitle">An Illustrated Guide to Mythology</div>
+    <h1 class="hero-title">Hooves & Horns</h1>
+    <p class="hero-intro">
+      Thousands of years ago, people told stories about mysterious beings who were half human and half goat. They lived in wild forests, played haunting music, and guarded the secrets of nature. These creatures have different names in different cultures &mdash; but they all share one thing: <span class="highlight">goat legs, human minds, and a wild spirit that can't be tamed.</span>
+    </p>
+  </div>
+</header>
+
+<!-- Section 1 -->
+<section class="section" id="section1">
+  <div class="fade-in">
+    <div class="section-number">Part One</div>
+    <h2 class="section-title">What Exactly Are Goat-Legged Beings?</h2>
+    <div class="section-img-wrapper">
+      <img src="images/02-greek-satyrs.png" alt="Friendly satyrs in an ancient Greek olive grove">
+    </div>
+    <div class="section-text">
+      <p>
+        Imagine a creature with the upper body of a person &mdash; human face, arms, chest &mdash; but from the waist down, it has the legs of a goat. Furry, muscular legs ending in hard hooves instead of feet. And up on top of their head? <span class="highlight">Small horns poking through curly hair.</span>
+      </p>
+      <p>
+        These beings go by different names depending on who's telling the story. The ancient Greeks called them <span class="highlight">satyrs</span>. The Romans called them <span class="highlight">fauns</span>. In many tales, they lived deep in forests and mountains, far from human cities. They were connected to nature in a way that humans could never be &mdash; they understood the language of animals, the moods of rivers, and the secret rhythms of the seasons.
+      </p>
+      <div class="fun-fact">
+        <strong>Did you know?</strong> The word "satyr" comes from the ancient Greek word <em>saturos</em>. Nobody knows exactly what it originally meant &mdash; it's one of the oldest mystery words in the Greek language.
+      </div>
+      <p>
+        But here's the really interesting part: these weren't monsters. In most myths, goat-legged beings were <span class="highlight">companions, tricksters, musicians, and dancers</span>. They loved to have fun, but they also had deep wisdom about the natural world. They were wild, yes &mdash; but not evil.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Section 2 -->
+<section class="section" id="section2">
+  <div class="fade-in">
+    <div class="section-number">Part Two</div>
+    <h2 class="section-title">The Greek Satyrs: Wild Companions of Dionysus</h2>
+    <div class="section-img-wrapper">
+      <img src="images/03-pan-pipes.png" alt="The god Pan playing his pipes in a moonlit forest">
+    </div>
+    <div class="section-text">
+      <p>
+        In ancient Greece, satyrs were the followers of <span class="highlight">Dionysus</span> &mdash; the god of nature, celebration, and transformation. They wandered the countryside in groups, playing music, dancing, and generally being the wildest party guests in mythology.
+      </p>
+      <p>
+        But the most famous goat-legged figure of all was <span class="highlight">Pan</span> &mdash; the god of the wild, shepherds, and flocks. Pan was different from other Greek gods. He didn't live on Mount Olympus in a golden palace. He lived in caves and forests, playing a musical instrument made from reeds that we still call <span class="highlight">"pan pipes"</span> today.
+      </p>
+      <div class="fun-fact">
+        <strong>Did you know?</strong> The English word "panic" actually comes from Pan. The ancient Greeks believed that Pan could make a terrifying shout that would cause sudden, unreasoning fear in anyone who heard it. When soldiers fled in fear for no obvious reason, people said Pan had screamed.
+      </div>
+      <p>
+        Pan's music was said to be so beautiful that it could make trees sway, rivers change course, and wild animals gather to listen. But it could also be so eerie that it made travelers lose their way in the woods. Pan represented something the Greeks deeply understood: <span class="highlight">nature is beautiful AND dangerous at the same time.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Section 3 -->
+<section class="section" id="section3">
+  <div class="fade-in">
+    <div class="section-number">Part Three</div>
+    <h2 class="section-title">Roman Fauns: A Gentler Side of the Wild</h2>
+    <div class="section-img-wrapper">
+      <img src="images/04-roman-faun.png" alt="A Roman faun dancing joyfully in an Italian woodland">
+    </div>
+    <div class="section-text">
+      <p>
+        When the Romans inherited Greek mythology, they gave the goat-legged beings a new name: <span class="highlight">fauns</span>, named after Faunus, their own god of forests and fields. Fauns were a little different from satyrs. While Greek satyrs could be loud and chaotic, Roman fauns were often described as <span class="highlight">gentle, curious, and kind</span>.
+      </p>
+      <p>
+        Faunus himself was one of the most beloved Roman gods. Farmers prayed to him for good harvests. Shepherds asked him to protect their flocks from wolves. He was seen as a friendly spirit of the Italian countryside &mdash; someone who cared about the land and the people who worked it.
+      </p>
+      <div class="fun-fact">
+        <strong>Did you know?</strong> The word "fauna" &mdash; meaning all the animals in a particular region &mdash; comes directly from the god Faunus. So when scientists talk about "the fauna of the Amazon rainforest," they're literally invoking an ancient Roman goat-legged god.
+      </div>
+      <p>
+        The Romans also told stories about fauns appearing at the edge of forests at twilight, watching humans from the tree line. They were <span class="highlight">guardians of the boundary between civilization and wilderness</span> &mdash; standing right at the line where the safe, familiar world ended and the unknown began.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Section 4 -->
+<section class="section" id="section4">
+  <div class="fade-in">
+    <div class="section-number">Part Four</div>
+    <h2 class="section-title">Why Goat Legs? The Big Question</h2>
+    <div class="section-img-wrapper">
+      <img src="images/03-pan-pipes.png" alt="Pan in the moonlit wild">
+    </div>
+    <div class="section-text">
+      <p>
+        Of all the animals ancient people could have combined with humans, why goats? This is actually a really deep question, and there are a few answers.
+      </p>
+      <p>
+        First, <span class="highlight">goats were everywhere in the ancient world</span>. In Greece and Italy, goats climbed rocky mountains that no other animal could handle. They survived in places too harsh for cattle or horses. Goats were tough, independent, and a little unpredictable &mdash; just like the satyrs and fauns in the stories.
+      </p>
+      <p>
+        Second, goats represented <span class="highlight">the wild spaces between</span>. A goat isn't fully wild like a wolf. It isn't fully tame like a dog. It's somewhere in the middle &mdash; half-domesticated but always ready to go its own way. That made goats the perfect animal to symbolize creatures that were half-human and half-wild.
+      </p>
+      <div class="fun-fact">
+        <strong>Think about it:</strong> Satyrs and fauns are literally built from two worlds. Human intelligence on top, animal instinct below. They walk in both worlds but belong entirely to neither. That's what makes them so fascinating.
+      </div>
+      <p>
+        Third, there's something about <span class="highlight">hooves on rocky ground</span>. Goat-legged beings can go places humans can't &mdash; up cliff faces, through deep forests, across mountain ridges at night. The goat legs give them access to the wild places that humans can only visit as guests.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Section 5 -->
+<section class="section" id="section5">
+  <div class="fade-in">
+    <div class="section-number">Part Five</div>
+    <h2 class="section-title">Goat-Legged Beings in Stories Today</h2>
+    <div class="section-img-wrapper">
+      <img src="images/05-modern-faun.png" alt="A friendly faun in a snowy winter forest with a lamppost">
+    </div>
+    <div class="section-text">
+      <p>
+        These ancient creatures didn't stay in the past. They walked right out of Greek and Roman mythology and into some of the most famous stories of the last hundred years.
+      </p>
+      <p>
+        In C.S. Lewis's <em>The Chronicles of Narnia</em>, the very first magical creature Lucy meets is <span class="highlight">Mr. Tumnus</span> &mdash; a faun carrying an umbrella and parcels through a snowy forest. He's gentle, musical, and a little sad. Lewis was deliberately reaching back to those Roman fauns: the kind, curious guardians who stand at the boundary between the ordinary world and something extraordinary.
+      </p>
+      <p>
+        In Rick Riordan's <em>Percy Jackson</em> series, Percy's best friend <span class="highlight">Grover Underwood</span> is a satyr who hides his goat legs under jeans and sneakers. Grover is funny and loyal, but also deeply connected to nature &mdash; he can sense when the environment is in danger. Riordan took the ancient Greek idea of satyrs as nature spirits and made it modern.
+      </p>
+      <div class="fun-fact">
+        <strong>Notice the pattern:</strong> In almost every modern story, the goat-legged character is the one who connects the main hero to a bigger, wilder, more magical world. They're guides between the ordinary and the extraordinary &mdash; just like they were thousands of years ago.
+      </div>
+      <p>
+        From ancient Greek pottery to Narnia's lamppost, from Pan's pipes to Percy Jackson's best friend, goat-legged beings have been walking alongside humans in our stories for over <span class="highlight">2,500 years</span>. And the reason is simple: they represent something we all feel &mdash; the pull between the safe, civilized world we've built and the wild, untamed world that still calls to us from the edge of the forest.
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- Quiz -->
+<section class="quiz-container" id="quiz">
+  <div class="fade-in">
+    <div class="quiz-header">
+      <div class="section-number">Test Your Knowledge</div>
+      <h2 class="section-title">The Hooves & Horns Quiz</h2>
+      <p style="color: var(--text-dim); max-width: 500px; margin: 0 auto;">You've read the guide &mdash; now let's see how much stuck. Pick your answer for each question, then hit <strong style="color:var(--gold);">See My Score</strong>.</p>
+    </div>
+
+    <!-- Q1 -->
+    <div class="quiz-question" data-answer="1">
+      <div class="quiz-q-number">Question 1 of 6</div>
+      <div class="quiz-q-text">What did the ancient Greeks call goat-legged beings?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> Fauns</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> Satyrs</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Centaurs</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> Minotaurs</button>
+      </div>
+      <div class="quiz-explanation">The Greeks called them <strong>satyrs</strong>. Fauns were the Roman name, centaurs are half-horse, and the Minotaur was half-bull.</div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="quiz-question" data-answer="2">
+      <div class="quiz-q-number">Question 2 of 6</div>
+      <div class="quiz-q-text">Which English word comes from the god Pan?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> Pandemic</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> Panorama</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Panic</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> Pantry</button>
+      </div>
+      <div class="quiz-explanation"><strong>Panic</strong> comes from Pan! The Greeks believed Pan could make a terrifying shout that caused sudden, unreasoning fear.</div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="quiz-question" data-answer="1">
+      <div class="quiz-q-number">Question 3 of 6</div>
+      <div class="quiz-q-text">Where did Pan live, unlike most other Greek gods?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> In a golden palace on Mount Olympus</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> In caves and forests</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Under the ocean</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> In a Roman temple</button>
+      </div>
+      <div class="quiz-explanation">Pan lived in <strong>caves and forests</strong> &mdash; unlike other gods on Mount Olympus, he chose the wild over luxury.</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="quiz-question" data-answer="3">
+      <div class="quiz-q-number">Question 4 of 6</div>
+      <div class="quiz-q-text">The scientific word "fauna" (meaning all animals in a region) comes from which figure?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> Pan</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> Dionysus</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Zeus</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> Faunus</button>
+      </div>
+      <div class="quiz-explanation"><strong>Faunus</strong> &mdash; the Roman god of forests and fields. When scientists talk about "fauna," they're using his name!</div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="quiz-question" data-answer="1">
+      <div class="quiz-q-number">Question 5 of 6</div>
+      <div class="quiz-q-text">In <em>The Chronicles of Narnia</em>, what is the name of the faun Lucy first meets?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> Mr. Beaver</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> Mr. Tumnus</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Grover Underwood</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> Reepicheep</button>
+      </div>
+      <div class="quiz-explanation"><strong>Mr. Tumnus</strong> &mdash; carrying an umbrella and parcels through a snowy forest, right by the famous lamppost.</div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="quiz-question" data-answer="2">
+      <div class="quiz-q-number">Question 6 of 6</div>
+      <div class="quiz-q-text">Why were goats (and not other animals) chosen for these mythological beings?</div>
+      <div class="quiz-options">
+        <button class="quiz-option" data-idx="0"><span class="opt-letter">A</span> Goats were the rarest animals in Greece</button>
+        <button class="quiz-option" data-idx="1"><span class="opt-letter">B</span> Goats were considered sacred to Zeus</button>
+        <button class="quiz-option" data-idx="2"><span class="opt-letter">C</span> Goats were half-tame, half-wild &mdash; like the beings themselves</button>
+        <button class="quiz-option" data-idx="3"><span class="opt-letter">D</span> Greeks thought goats were the smartest animals</button>
+      </div>
+      <div class="quiz-explanation">Goats are <strong>half-domesticated but always ready to go their own way</strong> &mdash; perfect symbols for creatures caught between the human world and the wild.</div>
+    </div>
+
+    <button class="submit-quiz" onclick="scoreQuiz()">See My Score</button>
+
+    <div class="quiz-score">
+      <div class="score-circle">
+        <div class="score-number" id="scoreNum">0</div>
+        <div class="score-label">of 6</div>
+      </div>
+      <div class="score-message" id="scoreMsg"></div>
+      <button class="quiz-restart" onclick="resetQuiz()">Try Again</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="hoof-prints">&#x1F43E; &#x1F43E; &#x1F43E;</div>
+  <p><em>Hooves & Horns</em> &mdash; An Illustrated Guide to Goat-Legged Beings of Myth</p>
+  <p style="margin-top: 8px; font-size: 0.8rem; color: #555;">Images generated with Gemini AI &bull; Guide by Claude</p>
+</footer>
+
+<script>
+  // Scroll-triggered fade-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Nav dot highlighting
+  const sections = ['hero','section1','section2','section3','section4','section5','quiz'];
+  const dots = document.querySelectorAll('.nav-dot');
+
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const idx = sections.indexOf(entry.target.id);
+        dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
+
+  // Quiz logic
+  const questions = document.querySelectorAll('.quiz-question');
+  const submitBtn = document.querySelector('.submit-quiz');
+  let answered = 0;
+
+  questions.forEach(q => {
+    const btns = q.querySelectorAll('.quiz-option');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (q.classList.contains('correct') || q.classList.contains('incorrect')) return;
+        const picked = btn.dataset.idx;
+        const answer = q.dataset.answer;
+        const explanation = q.querySelector('.quiz-explanation');
+
+        btns.forEach(b => b.classList.add('disabled'));
+
+        if (picked === answer) {
+          q.classList.add('correct');
+          btn.classList.add('selected-correct');
+          explanation.classList.add('right', 'show');
+        } else {
+          q.classList.add('incorrect');
+          btn.classList.add('selected-wrong');
+          btns[parseInt(answer)].classList.add('reveal-correct');
+          explanation.classList.add('wrong', 'show');
+        }
+
+        answered++;
+        if (answered === questions.length) {
+          submitBtn.classList.add('show');
+        }
+      });
+    });
+  });
+
+  function scoreQuiz() {
+    const correct = document.querySelectorAll('.quiz-question.correct').length;
+
+    submitBtn.style.display = 'none';
+
+    const scoreEl = document.querySelector('.quiz-score');
+    document.getElementById('scoreNum').textContent = correct;
+
+    const messages = [
+      "Hmm, maybe give the guide another read — the satyrs believe in you!",
+      "A solid start! You've got some mythology basics down.",
+      "Not bad! You know more than most humans about goat-legged beings.",
+      "Nice work! Pan himself would be impressed.",
+      "Excellent! You'd fit right in at a satyr gathering.",
+      "Almost perfect! The fauns are whispering your name in the forest.",
+      "PERFECT SCORE! You are officially an honorary satyr. Welcome to the wild side."
+    ];
+    document.getElementById('scoreMsg').textContent = messages[correct];
+
+    scoreEl.classList.add('show');
+    scoreEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function resetQuiz() {
+    questions.forEach(q => {
+      delete q.dataset.picked;
+      q.classList.remove('correct', 'incorrect');
+      const btns = q.querySelectorAll('.quiz-option');
+      btns.forEach(b => {
+        b.classList.remove('selected', 'selected-correct', 'selected-wrong', 'reveal-correct', 'disabled');
+      });
+      const exp = q.querySelector('.quiz-explanation');
+      exp.classList.remove('show', 'right', 'wrong');
+    });
+    answered = 0;
+    submitBtn.classList.remove('show');
+    submitBtn.style.display = '';
+    document.querySelector('.quiz-score').classList.remove('show');
+    document.querySelector('#quiz').scrollIntoView({ behavior: 'smooth' });
+  }
+</script>
+
+</body>
+</html>
